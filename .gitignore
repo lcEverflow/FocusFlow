@@ -8,3 +8,6 @@ build/
 
 # macOS
 .DS_Store
+
+# 本地对话恢复上下文，不上传
+CLAUDE.md
