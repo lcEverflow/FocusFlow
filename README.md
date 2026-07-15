@@ -29,7 +29,7 @@ open build/FocusFlow.app
 **打包 DMG**
 
 ```bash
-bash Scripts/make-dmg.sh 1.0.0   # → build/FocusFlow-1.0.0.dmg
+bash Scripts/make-dmg.sh 1.1.0   # → build/FocusFlow-1.1.0.dmg
 ```
 
 应用为菜单栏常驻（`LSUIElement`），启动后看菜单栏的 ⏱ 图标，不会出现 Dock 图标和主窗口。

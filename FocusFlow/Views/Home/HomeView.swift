@@ -20,6 +20,12 @@ struct HomeView: View {
 
     private var header: some View {
         HStack(spacing: 8) {
+            if let icon = NSImage(named: NSImage.applicationIconName) {
+                Image(nsImage: icon)
+                    .resizable()
+                    .interpolation(.high)
+                    .frame(width: 20, height: 20)
+            }
             Text("FocusFlow")
                 .font(.headline)
             Spacer()

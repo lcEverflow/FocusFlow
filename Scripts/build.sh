@@ -10,6 +10,7 @@ SDK="$(xcrun --sdk macosx --show-sdk-path)"
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
+mkdir -p "$APP/Contents/Resources"
 
 # ---- CLT 16.x 已知 bug 规避：usr/include 重复定义 SwiftBridging 模块 ----
 # 现象：任何 swiftc 编译报 "redefinition of module 'SwiftBridging'"
@@ -50,6 +51,14 @@ swiftc -O -parse-as-library -swift-version 5 \
     $(find "$ROOT/FocusFlow" -name '*.swift') \
     -o "$APP/Contents/MacOS/FocusFlow"
 
+echo "==> 拷贝 App 图标"
+# 图标由 Scripts/make-icon.sh 预生成并提交进仓库；缺失时自动补生成，保证 CI/新机器可构建。
+if [ ! -f "$ROOT/Resources/AppIcon.icns" ]; then
+    echo "    未找到 Resources/AppIcon.icns，现场生成"
+    bash "$ROOT/Scripts/make-icon.sh"
+fi
+cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
+
 echo "==> 生成 Info.plist"
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -58,6 +67,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <dict>
 	<key>CFBundleExecutable</key>
 	<string>FocusFlow</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.focusflow.FocusFlow</string>
 	<key>CFBundleName</key>
@@ -65,9 +76,9 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.1.0</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>LSUIElement</key>
