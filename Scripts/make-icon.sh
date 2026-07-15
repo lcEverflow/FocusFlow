@@ -33,5 +33,8 @@ cp "$MASTER" "$ICONSET/icon_512x512@2x.png"
 echo "==> 打包 AppIcon.icns"
 iconutil -c icns "$ICONSET" -o "$ICNS"
 
-echo "==> 完成: $ICNS"
-du -h "$ICNS"
+echo "==> 渲染通知配图"
+swift "$ROOT/Scripts/make-notif-images.swift" "$RES"
+
+echo "==> 完成: $ICNS + 通知配图"
+du -h "$ICNS" "$RES"/notif-*.png

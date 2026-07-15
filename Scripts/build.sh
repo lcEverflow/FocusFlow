@@ -51,13 +51,15 @@ swiftc -O -parse-as-library -swift-version 5 \
     $(find "$ROOT/FocusFlow" -name '*.swift') \
     -o "$APP/Contents/MacOS/FocusFlow"
 
-echo "==> 拷贝 App 图标"
-# 图标由 Scripts/make-icon.sh 预生成并提交进仓库；缺失时自动补生成，保证 CI/新机器可构建。
-if [ ! -f "$ROOT/Resources/AppIcon.icns" ]; then
-    echo "    未找到 Resources/AppIcon.icns，现场生成"
+echo "==> 拷贝图标 + 通知配图"
+# 视觉资源由 Scripts/make-icon.sh 预生成并提交进仓库；缺失时自动补生成，保证 CI/新机器可构建。
+if [ ! -f "$ROOT/Resources/AppIcon.icns" ] || [ ! -f "$ROOT/Resources/notif-focus.png" ]; then
+    echo "    视觉资源缺失，现场生成"
     bash "$ROOT/Scripts/make-icon.sh"
 fi
 cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
+cp "$ROOT/Resources/notif-focus.png" "$APP/Contents/Resources/notif-focus.png"
+cp "$ROOT/Resources/notif-break.png" "$APP/Contents/Resources/notif-break.png"
 
 echo "==> 生成 Info.plist"
 cat > "$APP/Contents/Info.plist" <<'PLIST'
@@ -76,9 +78,9 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.1</string>
+	<string>1.1.2</string>
 	<key>CFBundleVersion</key>
-	<string>3</string>
+	<string>4</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>LSUIElement</key>

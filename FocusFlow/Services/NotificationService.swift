@@ -26,12 +26,12 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         if reachedEstimate {
             body += " 🎉 该任务的预计投入时长已全部达成！"
         }
-        send(title: "专注结束 🍅", body: body, sound: sound)
+        send(title: "专注结束 🍅", body: body, sound: sound, image: "notif-focus")
     }
 
     func notifyBreakEnded(taskTitle: String?, sound: Bool) {
         let body = taskTitle.map { "继续「\($0)」的下一个专注吧。" } ?? "开始下一个专注吧。"
-        send(title: "休息结束", body: body, sound: sound)
+        send(title: "休息结束", body: body, sound: sound, image: "notif-break")
     }
 
     /// 发现新版本时提醒；点击通知打开发布页。best-effort：仅在用户已授权通知时展示。
@@ -45,14 +45,24 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         UNUserNotificationCenter.current().add(request)
     }
 
-    private func send(title: String, body: String, sound: Bool) {
+    private func send(title: String, body: String, sound: Bool, image: String? = nil) {
         guard isAvailable else { return }
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         if sound { content.sound = .default }
+        // 主题化配图：让通知不再依赖 App 图标缓存（DMG 运行时会 translocation 致左图标丢失）
+        if let image, let attachment = imageAttachment(named: image) {
+            content.attachments = [attachment]
+        }
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
+    }
+
+    /// 从 bundle 取一张主题配图，包装成通知附件（系统会拷贝一份，源文件保留）。
+    private func imageAttachment(named name: String) -> UNNotificationAttachment? {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "png") else { return nil }
+        return try? UNNotificationAttachment(identifier: name, url: url, options: nil)
     }
 
     // App 处于前台（菜单栏应用几乎总是）时也以横幅形式展示
