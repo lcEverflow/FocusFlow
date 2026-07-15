@@ -29,7 +29,7 @@ open build/FocusFlow.app
 **打包 DMG**
 
 ```bash
-bash Scripts/make-dmg.sh 1.1.2   # → build/FocusFlow-1.1.2.dmg
+bash Scripts/make-dmg.sh 1.1.3   # → build/FocusFlow-1.1.3.dmg
 ```
 
 应用为菜单栏常驻（`LSUIElement`），启动后看菜单栏的 ⏱ 图标，不会出现 Dock 图标和主窗口。
@@ -37,6 +37,7 @@ bash Scripts/make-dmg.sh 1.1.2   # → build/FocusFlow-1.1.2.dmg
 ## 已实现功能
 
 - 常驻菜单栏：空闲显示图标；计时中直接显示 `任务名 24:31`（任务名可在设置中关闭）
+- 快捷键：弹窗打开时 `⌘W` 收起弹窗、`⌘Q` 退出程序
 - 任务管理：新建 / 编辑 / 删除 / 标记完成，优先级（高/中/低）排序
 - 任务拆分：按「预计总耗时 ÷ 单次专注时长」自动拆为 N 个番茄，展示 `🍅 2/5` 与整体进度条
 - 番茄钟：专注 → 短休息，每 N 个番茄进入长休息；暂停 / 继续 / 跳过 / 结束

@@ -39,6 +39,17 @@ final class AppEnvironment {
         self.updates = updates
         // 启动后节流检查更新（每 24h 一次）；不阻塞、失败静默。
         Task { await updates.checkForUpdates(force: false) }
+
+        // QA 钩子：设 FOCUSFLOW_TEST_NOTIFY=1 直接运行二进制，启动后 1.5s 发一条测试通知，
+        // 用于验证通知外观（左侧图标 / 配图）。仅 env 触发，对正常使用零影响。
+        if ProcessInfo.processInfo.environment["FOCUSFLOW_TEST_NOTIFY"] != nil {
+            notifications.requestAuthorizationIfNeeded()
+            let n = notifications
+            Task {
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                n.notifyFocusEnded(taskTitle: "阅读论文&整理笔记", reachedEstimate: false, sound: false)
+            }
+        }
     }
 
     // MARK: - 跨子系统门面操作

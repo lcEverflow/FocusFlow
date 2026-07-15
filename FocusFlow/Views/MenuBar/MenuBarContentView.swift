@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 /// 弹窗内的轻量路由：菜单栏应用不开主窗口，所有页面都在弹窗内切换。
 enum MenuRoute: Equatable {
@@ -30,6 +31,17 @@ struct MenuBarContentView: View {
         // 固定尺寸：MenuBarExtra 的 window 弹层对动态内容高度变化的重算不可靠
         //（计时面板展开时底部列表会被裁剪），固定框架 + 内部弹性区域最稳。
         .frame(width: 380, height: 560)
+        // 快捷键：菜单栏 agent 无系统菜单，⌘W/⌘Q 需在弹窗打开（成为 key window）时自行绑定。
+        // 隐藏按钮承载快捷键；opacity(0) 保留在视图树中仍可响应。
+        .background {
+            ZStack {
+                Button("") { NSApp.keyWindow?.close() }
+                    .keyboardShortcut("w", modifiers: .command)
+                Button("") { NSApplication.shared.terminate(nil) }
+                    .keyboardShortcut("q", modifiers: .command)
+            }
+            .opacity(0)
+        }
     }
 }
 
