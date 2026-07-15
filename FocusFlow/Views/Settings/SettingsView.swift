@@ -38,9 +38,54 @@ struct SettingsView: View {
                     Toggle("结束音效 🔔", isOn: $settings.endSoundEnabled)
                     Toggle("通知提示音", isOn: $settings.notificationSound)
                 }
+
+                Section("关于") {
+                    LabeledContent("当前版本", value: "v\(app.updates.currentVersion)")
+                    updateRow
+                }
             }
             .formStyle(.grouped)
             .frame(maxHeight: .infinity)
+        }
+    }
+
+    /// 更新检查行：随 UpdateService.status 切换（检查中 / 已最新 / 有新版 / 失败）。
+    @ViewBuilder
+    private var updateRow: some View {
+        switch app.updates.status {
+        case .idle:
+            Button("检查更新") { Task { await app.updates.checkForUpdates(force: true) } }
+        case .checking:
+            HStack(spacing: 6) {
+                ProgressView().controlSize(.small)
+                Text("检查中…").foregroundStyle(.secondary)
+            }
+        case .upToDate(let latest):
+            HStack {
+                Label("已是最新（v\(latest)）", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+                Spacer()
+                Button("重新检查") { Task { await app.updates.checkForUpdates(force: true) } }
+                    .controlSize(.small)
+            }
+        case .available(let info):
+            HStack {
+                Label("发现新版本 \(info.tag)", systemImage: "arrow.down.circle.fill")
+                    .foregroundStyle(.orange)
+                Spacer()
+                Button("下载") { app.updates.openDownload() }
+                    .controlSize(.small)
+                    .buttonStyle(.borderedProminent)
+            }
+        case .failed(let msg):
+            HStack {
+                Label("检查失败", systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.secondary)
+                    .help(msg)
+                Spacer()
+                Button("重试") { Task { await app.updates.checkForUpdates(force: true) } }
+                    .controlSize(.small)
+            }
         }
     }
 }

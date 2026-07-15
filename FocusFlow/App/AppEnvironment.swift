@@ -14,6 +14,7 @@ final class AppEnvironment {
     let notifications: NotificationService
     let sounds: SoundService
     let pomodoro: PomodoroController
+    let updates: UpdateService
 
     init(store: DataStore = JSONFileStore()) {
         let settings = SettingsStore()
@@ -34,6 +35,10 @@ final class AppEnvironment {
             sounds: sounds,
             store: store
         )
+        let updates = UpdateService(notifications: notifications)
+        self.updates = updates
+        // 启动后节流检查更新（每 24h 一次）；不阻塞、失败静默。
+        Task { await updates.checkForUpdates(force: false) }
     }
 
     // MARK: - 跨子系统门面操作

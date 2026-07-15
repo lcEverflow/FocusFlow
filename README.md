@@ -29,7 +29,7 @@ open build/FocusFlow.app
 **打包 DMG**
 
 ```bash
-bash Scripts/make-dmg.sh 1.1.0   # → build/FocusFlow-1.1.0.dmg
+bash Scripts/make-dmg.sh 1.1.1   # → build/FocusFlow-1.1.1.dmg
 ```
 
 应用为菜单栏常驻（`LSUIElement`），启动后看菜单栏的 ⏱ 图标，不会出现 Dock 图标和主窗口。
@@ -47,6 +47,7 @@ bash Scripts/make-dmg.sh 1.1.0   # → build/FocusFlow-1.1.0.dmg
 - 今日统计：总专注时长、完成番茄数、按任务分布
 - 本地持久化：JSON 落盘于 `~/Library/Application Support/FocusFlow/`，人类可读
 - 重启恢复：计时快照落盘，重启后恢复运行中/暂停中的计时；App 未运行期间阶段自然结束的，补记账后回到空闲
+- 检查更新：启动时（每 24h 一次）+ 设置里手动，查 GitHub Releases 比对版本；有新版则弹通知 + 弹窗顶部提示，一键前往下载（零第三方依赖，非静默自动安装）
 
 ## 项目结构
 

@@ -8,6 +8,10 @@ struct HomeView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            if case .available(let info) = app.updates.status {
+                updateBanner(info)
+                Divider()
+            }
             header
             Divider()
             TimerPanelView()
@@ -16,6 +20,28 @@ struct HomeView: View {
             Divider()
             footer
         }
+    }
+
+    /// 有新版本时的顶部条：点击直接打开下载。
+    private func updateBanner(_ info: UpdateService.ReleaseInfo) -> some View {
+        Button {
+            app.updates.openDownload()
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "arrow.down.circle.fill")
+                Text("有新版本 \(info.tag)，点击下载")
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption2)
+            }
+            .font(.caption)
+            .foregroundStyle(.orange)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity)
+            .background(Color.orange.opacity(0.14))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private var header: some View {
