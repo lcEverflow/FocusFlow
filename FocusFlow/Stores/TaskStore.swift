@@ -13,6 +13,18 @@ final class TaskStore {
     init(store: DataStore) {
         self.store = store
         tasks = store.load([FocusTask].self, from: Self.file) ?? []
+        autoCompleteReached()
+    }
+
+    /// 启动时迁移：已达预估但未手动标记完成的任务自动补完。
+    private func autoCompleteReached() {
+        var changed = false
+        for i in tasks.indices where !tasks[i].isCompleted && tasks[i].reachedEstimate {
+            tasks[i].status = .completed
+            tasks[i].completedAt = Date()
+            changed = true
+        }
+        if changed { persist() }
     }
 
     /// 进行中任务（全量，不分日期）：优先级降序，同级按创建时间
@@ -83,11 +95,16 @@ final class TaskStore {
         }
     }
 
-    /// 为任务记账专注时间；fullPomodoro = 完整跑满一个番茄
+    /// 为任务记账专注时间；fullPomodoro = 完整跑满一个番茄。
+    /// 达到预估时自动标记完成（无需手动勾选）。
     func credit(taskID: UUID, seconds: Int, fullPomodoro: Bool) {
         mutate(taskID) {
             $0.investedSeconds += seconds
             if fullPomodoro { $0.completedPomodoros += 1 }
+            if $0.reachedEstimate && !$0.isCompleted {
+                $0.status = .completed
+                $0.completedAt = Date()
+            }
         }
     }
 
