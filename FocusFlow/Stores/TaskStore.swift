@@ -15,7 +15,7 @@ final class TaskStore {
         tasks = store.load([FocusTask].self, from: Self.file) ?? []
     }
 
-    /// 进行中任务：优先级降序，同级按创建时间
+    /// 进行中任务（全量，不分日期）：优先级降序，同级按创建时间
     var activeTasks: [FocusTask] {
         tasks.filter { !$0.isCompleted }.sorted { a, b in
             if a.priority != b.priority { return a.priority < b.priority }
@@ -23,10 +23,37 @@ final class TaskStore {
         }
     }
 
+    /// 今日进行中任务（今天创建的未完成任务）
+    var todayActiveTasks: [FocusTask] {
+        tasks.filter { !$0.isCompleted && Calendar.current.isDateInToday($0.createdAt) }
+            .sorted { a, b in
+                if a.priority != b.priority { return a.priority < b.priority }
+                return a.createdAt < b.createdAt
+            }
+    }
+
+    /// 昨日及更早的未完成任务（遗留）
+    var olderActiveTasks: [FocusTask] {
+        tasks.filter { !$0.isCompleted && !Calendar.current.isDateInToday($0.createdAt) }
+            .sorted { a, b in
+                if a.priority != b.priority { return a.priority < b.priority }
+                return a.createdAt < b.createdAt
+            }
+    }
+
+    /// 全部已完成任务（历史全量），当前仅内部/未来统计用。
     var completedTasks: [FocusTask] {
         tasks.filter(\.isCompleted).sorted {
             ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast)
         }
+    }
+
+    /// 今日完成的任务：主列表「已完成」区只展示当天完成的，避免昨日及更早的完成项
+    /// 在此无限累计。历史完成项仍保留在 tasks.json，专注时长记录也仍在 records.json
+    /// 供统计页回看——只是从每日看板里隐去，不丢数据。
+    var todayCompletedTasks: [FocusTask] {
+        tasks.filter { $0.isCompleted && Calendar.current.isDateInToday($0.completedAt ?? .distantPast) }
+            .sorted { ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast) }
     }
 
     func task(id: UUID) -> FocusTask? {
